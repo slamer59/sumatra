@@ -6,18 +6,21 @@ Definition of database tables and object retrieval for the DjangoRecordStore.
 :license: BSD 2-clause, see LICENSE for details.
 """
 from __future__ import unicode_literals
-from builtins import str
-from builtins import object
 
-import json
-from django.db import models
-from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
-from sumatra.datastore import get_data_store
 import datetime
-import django
-from distutils.version import LooseVersion
-from sumatra.core import get_registered_components
+import json
 import warnings
+from builtins import object
+from builtins import str
+from distutils.version import LooseVersion
+
+import django
+from django.db import models
+
+from sumatra import programs, launch, datastore, records, versioncontrol, parameters, dependency_finder
+from sumatra.core import get_registered_components
+from sumatra.datastore import get_data_store
+
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import tagging.fields
@@ -82,7 +85,8 @@ class Project(BaseModel):
         return self.id
 
     def last_updated(self):
-        return self.record_set.all().aggregate(models.Max('timestamp'))["timestamp__max"] or datetime(1970, 1, 1, 0, 0, 0)
+        return self.record_set.all().aggregate(models.Max('timestamp'))["timestamp__max"] or datetime(1970, 1, 1, 0, 0,
+                                                                                                      0)
 
     def get_main_files(self):
         return list(set([str(record.main_file) for record in self.record_set.all()]))
@@ -139,7 +143,7 @@ class Repository(BaseModel):
     def to_sumatra(self):
         for m in versioncontrol.vcs_list:
             if hasattr(m, self.type):
-                repos = getattr(m, self.type)(self.url, upstream = self.upstream)
+                repos = getattr(m, self.type)(self.url, upstream=self.upstream)
                 return repos
         raise Exception("Repository type %s not supported." % self.type)
 
@@ -197,8 +201,7 @@ class DataKey(BaseModel):
     digest = models.CharField(max_length=40)
     creation = models.DateTimeField(null=True, blank=True)
     metadata = models.TextField(blank=True)
-    output_from_record = models.ForeignKey('Record', related_name='output_data',
-                                           null=True)
+    output_from_record = models.ForeignKey('Record', related_name='output_data', on_delete=models.CASCADE, null=True)
 
     class Meta(object):
         ordering = ('path',)
@@ -241,19 +244,25 @@ class PlatformInformation(BaseModel):
 
 
 class Record(BaseModel):
-    label = models.CharField(max_length=100, unique=False)  # make this a SlugField? samarkanov changed unique to False for the search form.
-    db_id = models.AutoField(primary_key=True)  # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
+    label = models.CharField(max_length=100,
+                             unique=False)  # make this a SlugField? samarkanov changed unique to False for the search form.
+    db_id = models.AutoField(
+        primary_key=True)  # django-tagging needs an integer as primary key - see http://code.google.com/p/django-tagging/issues/detail?id=15
     reason = models.TextField(blank=True)
     duration = models.FloatField(null=True)
-    executable = models.ForeignKey(Executable, null=True, blank=True)  # null and blank for the search. If user doesn't want to specify the executable during the search
-    repository = models.ForeignKey(Repository, null=True, blank=True)  # null and blank for the search.
+    executable = models.ForeignKey(Executable, null=True,
+                                   blank=True,
+                                   on_delete=models.SET_NULL)  # null and blank for the search. If user doesn't want to specify the executable during the search
+    repository = models.ForeignKey(Repository, null=True, blank=True,
+                                   on_delete=models.SET_NULL)  # null and blank for the search.
     main_file = models.CharField(max_length=100)
     version = models.CharField(max_length=50)
-    parameters = models.ForeignKey(ParameterSet)
+    parameters = models.ForeignKey(ParameterSet, on_delete=models.SET_NULL, null=True)
     input_data = models.ManyToManyField(DataKey, related_name="input_to_records")
-    launch_mode = models.ForeignKey(LaunchMode)
-    datastore = models.ForeignKey(Datastore)
-    input_datastore = models.ForeignKey(Datastore, related_name="input_to_records")
+    launch_mode = models.ForeignKey(LaunchMode, on_delete=models.SET_NULL, null=True)
+    datastore = models.ForeignKey(Datastore, on_delete=models.SET_NULL, null=True)
+    input_datastore = models.ForeignKey(Datastore, related_name="input_to_records", on_delete=models.SET_NULL,
+                                        null=True)
     outcome = models.TextField(blank=True)
     timestamp = models.DateTimeField()
     tags = tagging.fields.TagField()
@@ -261,7 +270,7 @@ class Record(BaseModel):
     platforms = models.ManyToManyField(PlatformInformation)
     diff = models.TextField(blank=True)
     user = models.CharField(max_length=100)
-    project = models.ForeignKey(Project, null=True)
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
     script_arguments = models.TextField(blank=True)
     stdout_stderr = models.TextField(blank=True)
     repeats = models.CharField(max_length=100, null=True, blank=True)

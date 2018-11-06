@@ -92,8 +92,8 @@ You will also need to install Python bindings for the version control system(s) 
 Code status
 ===========
 
-.. image:: https://travis-ci.org/open-research/sumatra.png?branch=master
-   :target: https://travis-ci.org/open-research/sumatra
+.. image:: https://travis-ci.com/slamer59/sumatra.svg?branch=master
+   :target: https://travis-ci.com/slamer59/sumatra
    :alt: Unit Test Status
 
 .. image:: https://coveralls.io/repos/open-research/sumatra/badge.svg
