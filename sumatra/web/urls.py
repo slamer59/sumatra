@@ -6,39 +6,42 @@ Define URL dispatching for the Sumatra web interface.
 """
 from __future__ import unicode_literals
 
-from django.conf.urls import patterns
+from django.conf.urls import url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
 from sumatra.projects import Project
 from sumatra.records import Record
 from sumatra.web.views import (ProjectListView, ProjectDetailView, RecordListView,
                                RecordDetailView, DataListView, DataDetailView,
-                               ImageListView, SettingsView, DiffView)
+                               ImageListView, SettingsView, DiffView, image_thumbgrid, parameter_list, delete_records,
+                               compare_records, show_script, datatable_record, datatable_data, datatable_image,
+                               show_content)
 
 P = {
     'project': Project.valid_name_pattern,
     'label': Record.valid_name_pattern,
 }
 
-urlpatterns = patterns('',
-                       (r'^$', ProjectListView.as_view()),
-                       (r'^settings/$', SettingsView.as_view()),
-                       (r'^%(project)s/$' % P, RecordListView.as_view()),
-                       (r'^%(project)s/about/$' % P, ProjectDetailView.as_view()),
-                       (r'^%(project)s/data/$' % P, DataListView.as_view()),
-                       (r'^%(project)s/image/$' % P, ImageListView.as_view()),
-                       (r'^%(project)s/image/thumbgrid$' % P, 'sumatra.web.views.image_thumbgrid'),
-                       (r'^%(project)s/parameter$' % P, 'sumatra.web.views.parameter_list'),
-                       (r'^%(project)s/delete/$' % P, 'sumatra.web.views.delete_records'),
-                       (r'^%(project)s/compare/$' % P, 'sumatra.web.views.compare_records'),
-                       (r'^%(project)s/%(label)s/$' % P, RecordDetailView.as_view()),
-                       (r'^%(project)s/%(label)s/diff$' % P, DiffView.as_view()),
-                       (r'^%(project)s/%(label)s/diff/(?P<package>[\w_]+)*$' % P, DiffView.as_view()),
-                       (r'^%(project)s/%(label)s/script$' % P, 'sumatra.web.views.show_script'),
-                       (r'^%(project)s/data/datafile$' % P, DataDetailView.as_view()),
-                       (r'^%(project)s/datatable/record$' % P, 'sumatra.web.views.datatable_record'),
-                       (r'^%(project)s/datatable/data$' % P, 'sumatra.web.views.datatable_data'),
-                       (r'^%(project)s/datatable/image$' % P, 'sumatra.web.views.datatable_image'),
-                       (r'^data/(?P<datastore_id>\d+)$', 'sumatra.web.views.show_content'),
-                       )
+urlpatterns = [
+    url(r'^$', ProjectListView),
+    url(r'^settings/$', SettingsView),
+    url(r'^%(project)s/$' % P, RecordListView),
+    url(r'^%(project)s/about/$' % P, ProjectDetailView),
+    url(r'^%(project)s/data/$' % P, DataListView),
+    url(r'^%(project)s/image/$' % P, ImageListView),
+    url(r'^%(project)s/image/thumbgrid$' % P, image_thumbgrid),
+    url(r'^%(project)s/parameter$' % P, parameter_list),
+    url(r'^%(project)s/delete/$' % P, delete_records),
+    url(r'^%(project)s/compare/$' % P, compare_records),
+    url(r'^%(project)s/%(label)s/$' % P, RecordDetailView),
+    url(r'^%(project)s/%(label)s/diff$' % P, DiffView),
+    url(r'^%(project)s/%(label)s/diff/(?P<package>[\w_]+)*$' % P, DiffView),
+    url(r'^%(project)s/%(label)s/script$' % P, show_script),
+    url(r'^%(project)s/data/datafile$' % P, DataDetailView),
+    url(r'^%(project)s/datatable/record$' % P, datatable_record),
+    url(r'^%(project)s/datatable/data$' % P, datatable_data),
+    url(r'^%(project)s/datatable/image$' % P, datatable_image),
+    url(r'^data/(?P<datastore_id>\d+)$', show_content),
+]
 
 urlpatterns += staticfiles_urlpatterns()
