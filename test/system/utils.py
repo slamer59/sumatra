@@ -3,14 +3,15 @@ Utility functions for writing system tests.
 """
 from __future__ import print_function
 from __future__ import unicode_literals
-from builtins import zip
-from builtins import str
 
 import os.path
 import re
-from itertools import islice
-import tempfile
 import shutil
+import tempfile
+from builtins import str
+from builtins import zip
+from itertools import islice
+
 import sarge
 
 DEBUG = False
@@ -18,8 +19,6 @@ temporary_dir = None
 working_dir = None
 env = {}
 
-
-label_pattern = re.compile("Record label for this run: '(?P<label>\d{8}-\d{6})'")
 label_pattern = re.compile("Record label for this run: '(?P<label>[\w\-_]+)'")
 
 info_pattern = r"""Project name        : (?P<project_name>\w+)
@@ -94,7 +93,8 @@ def assert_config(p, expected_config):
     match = re.match(info_pattern, p.stdout.text)
     assert match, "Pattern: %s\nActual: %s" % (info_pattern, p.stdout.text)
     for key, value in expected_config.items():
-        assert match.groupdict()[key] == value, "expected {0} = {1}, actually {2}".format(key, value, match.groupdict()[key])
+        assert match.groupdict()[key] == value, "expected {0} = {1}, actually {2}".format(key, value,
+                                                                                          match.groupdict()[key])
 
 
 def parse_records(text):
@@ -108,7 +108,7 @@ def parse_records(text):
         else:
             first_column_width = line.find(':')
             first_column_content = line[:first_column_width].strip()
-            value = line[first_column_width+1:].strip()
+            value = line[first_column_width + 1:].strip()
             if first_column_content:
                 field_name = first_column_content.lower()
                 data[field_name] = value
@@ -156,11 +156,13 @@ def expected_short_list(env):
 
 def substitute_labels(expected_records):
     """ """
+
     def wrapped(env):
         for record in expected_records:
             index = record["label"]
             record["label"] = env["labels"][index]
         return expected_records
+
     return wrapped
 
 
@@ -174,6 +176,7 @@ def build_command(template, env_var):
         else:
             s = template.format(args)
         return s
+
     return wrapped
 
 
@@ -189,6 +192,7 @@ def edit_parameters(input, output, name, new_value):
                         fpout.write("{0} = {1}\n".format(name, new_value))
                     else:
                         fpout.write(line)
+
     return wrapped
 
 
@@ -211,4 +215,6 @@ def run_test(command, *checks):
     if label is not None:
         env["labels"].append(label)
         print("label is", label)
+
+
 run_test.__test__ = False  # nose should not treat this as a test
