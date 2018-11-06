@@ -77,6 +77,9 @@ class MockWorkingCopy(object):
     def get_username(self):
         return "The Knights Who Say Ni"
 
+    def reset(self):
+        pass
+    
 
 class MockExecutable(object):
     name = "Python"
@@ -150,6 +153,9 @@ class MockRecord(object):
 
     def difference(r1, r2, igm, igf):
         return ""
+
+    def add_tag(self, tag):
+        self.tags.add(tag)
 
 
 class MockDatastore(object):

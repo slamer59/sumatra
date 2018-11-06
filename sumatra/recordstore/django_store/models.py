@@ -12,6 +12,7 @@ import json
 import warnings
 from builtins import object
 from builtins import str
+from datetime import datetime
 from distutils.version import LooseVersion
 
 import django
@@ -74,6 +75,9 @@ class Project(BaseModel):
     id = models.SlugField(primary_key=True)
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
+    columns = ["Label", "Date/Time", "Reason", "Outcome",
+               "Input data", "Output data", "Duration", "Processes",
+               "Executable", "Main", "Version", "Arguments", "Tags"]
 
     class Meta(object):
         ordering = ('id',)
